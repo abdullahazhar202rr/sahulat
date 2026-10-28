@@ -66,6 +66,29 @@ def run_tool(name, args):
     return {"error": "unknown tool"}, None
 
 
+FALLBACK = {
+    "office": "دفتر کی تفصیل اوپر کارڈ میں دی گئی ہے۔ کیا آپ کچھ اور پوچھنا چاہتے ہیں؟",
+    "checklist": "ضروری کاغذات اور فیس اوپر کارڈ میں دی گئی ہے۔ کیا آپ کچھ اور پوچھنا چاہتے ہیں؟",
+    "form": "آپ کا فارم بھر دیا گیا ہے اور پرنٹ کے لیے تیار ہے۔",
+    "": "معاف کیجیے، مجھے یقین نہیں ہے۔ براہ کرم دفتر میں تصدیق کریں۔",
+}
+
+
+def _finish(messages, mode, cards, reply):
+    """Small models sometimes answer with nothing; ask once more, then use a safe line."""
+    if reply:
+        return {"reply": reply, "cards": cards}
+    nudge = {"role": "user", "content": "Please answer now in 1-2 short sentences, in the same language I used."}
+    try:
+        msg = llm.chat(messages + [nudge], mode=mode)
+        reply = (msg.get("content") or "").strip()
+    except Exception:
+        reply = ""
+    if not reply:
+        reply = FALLBACK.get(cards[-1]["type"] if cards else "", FALLBACK[""])
+    return {"reply": reply, "cards": cards}
+
+
 def respond(history, mode="local", profile=None):
     """history: list of {role, content}. profile: details read from the user's documents."""
     sys = SYSTEM
@@ -104,7 +127,7 @@ def respond(history, mode="local", profile=None):
             msg = llm.chat(messages, mode=mode, tools=TOOLS)
         calls = msg.get("tool_calls") or []
         if not calls:
-            return {"reply": (msg.get("content") or "").strip(), "cards": cards}
+            return _finish(messages, mode, cards, (msg.get("content") or "").strip())
         messages.append({"role": "assistant", "content": msg.get("content") or "", "tool_calls": calls})
         for c in calls:
             fn = c["function"]
@@ -123,4 +146,4 @@ def respond(history, mode="local", profile=None):
             return {"reply": msg["content"].strip(), "cards": cards}
     # Too many tool rounds: ask for a plain answer.
     msg = llm.chat(messages, mode=mode)
-    return {"reply": (msg.get("content") or "").strip(), "cards": cards}
+    return _finish(messages, mode, cards, (msg.get("content") or "").strip())

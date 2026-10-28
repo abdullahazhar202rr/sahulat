@@ -48,9 +48,14 @@ def _ollama_chat(messages, tools=None, temperature=0.3, images=None, fmt=None):
         body["tools"] = tools
     if fmt:
         body["format"] = fmt
-    r = httpx.post(f"{base}/api/chat", json=body, timeout=300)
-    r.raise_for_status()
-    return r.json()["message"]
+    for attempt in range(2):
+        try:
+            r = httpx.post(f"{base}/api/chat", json=body, timeout=300)
+            r.raise_for_status()
+            return r.json()["message"]
+        except (httpx.TransportError, httpx.HTTPStatusError):
+            if attempt == 1:
+                raise  # the tunnel to our server dropped twice in a row
 
 
 def chat(messages, mode="local", tools=None, temperature=0.3):
