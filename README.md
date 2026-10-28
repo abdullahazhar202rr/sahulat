@@ -25,6 +25,17 @@ Sahulat is an Urdu-speaking AI agent, built on **Google Gemma 4**, that takes an
 | **Where to go** | e-Khidmat Markaz and Assistant Commissioner office for the user's district, plus an *Open in Google Maps* button |
 | **Read aloud** | Urdu replies are spoken with **Meta's open MMS-TTS Urdu model**, self-hosted (`tts/server.py`) |
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Welcome](docs/screenshots/welcome.jpg) | ![Official checklist and fee](docs/screenshots/checklist.jpg) |
+| *Speak or type in Urdu or English* | *Official checklist and fee, with sources* |
+| ![CNIC read on our own server](docs/screenshots/details.jpg) | ![Filled form](docs/screenshots/form.jpg) |
+| *CNIC read by self-hosted Gemma 4, number masked* | *The filled domicile application* |
+| ![Where to apply](docs/screenshots/office.jpg) | |
+| *Where to apply, with a map* | |
+
 ## How AI is used (Gemma 4)
 
 - **Multimodal understanding.** Gemma 4 reads CNIC photos and returns structured JSON (`/api/read-document`).
