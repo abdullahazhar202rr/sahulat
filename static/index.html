@@ -21,15 +21,15 @@
   <div class="actions">
     <button id="voiceBtn" class="tonal" title="Read replies aloud"><span class="ms">volume_up</span><span class="lbl">Voice on</span></button>
     <div class="segmented" role="group" aria-label="Where Gemma runs">
-      <button data-mode="local" class="on"><span class="ms">shield_lock</span>Private</button>
-      <button data-mode="cloud"><span class="ms">bolt</span>Gemini API</button>
+      <button data-mode="cloud" class="on"><span class="ms">bolt</span>Hybrid</button>
+      <button data-mode="local"><span class="ms">shield_lock</span>Private</button>
     </div>
   </div>
 </header>
 
 <div class="layout">
   <section class="chatpane">
-    <div class="privacy" id="privacy"><span class="ms">verified_user</span><span id="privacyText">Private mode: everything runs on Gemma 4 on our own server. Nothing is sent to Google.</span></div>
+    <div class="privacy" id="privacy"><span class="ms">verified_user</span><span id="privacyText">Hybrid: chat uses Gemma 4 on the Gemini API, with our own server as backup. CNIC photos are read only on our own server.</span></div>
 
     <main id="chat">
       <div class="welcome">

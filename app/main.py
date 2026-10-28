@@ -1,9 +1,11 @@
 """Sahulat web server."""
+import os
 import time
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -55,6 +57,18 @@ async def read_document(file: UploadFile = File(...)):
     fields["cnic_masked"] = mask(fields.get("cnic", ""))
     return {"fields": fields, "processed_on": "our own server" if mode == "local" else "cloud",
             "seconds": round(time.time() - t, 1)}
+
+
+@app.post("/api/tts")
+def tts(body: dict):
+    # Urdu speech from self-hosted MMS-TTS (browsers rarely ship an Urdu voice).
+    url = os.environ.get("TTS_URL", "http://localhost:8101/tts")
+    try:
+        r = httpx.post(url, json={"text": str(body.get("text", ""))}, timeout=60)
+        r.raise_for_status()
+    except Exception as e:
+        raise HTTPException(502, f"Voice server not reachable: {e}")
+    return Response(r.content, media_type="audio/wav")
 
 
 @app.get("/api/services")

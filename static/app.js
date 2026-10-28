@@ -1,7 +1,7 @@
 // Sahulat front end: chat, voice, document scan, cards and progress panel.
 const $ = (s) => document.querySelector(s);
 const chat = $("#chat");
-const state = { history: [], mode: "local", voice: true, profile: null, shown: new Set() };
+const state = { history: [], mode: "cloud", voice: true, profile: null, shown: new Set() };
 
 const isUrdu = (t) => /[؀-ۿ]/.test(t);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -153,14 +153,22 @@ async function scan(file) {
 }
 
 // ---------- voice ----------
-function speak(text) {
-  if (!state.voice || !("speechSynthesis" in window)) return;
+let player;
+async function speak(text) {
+  if (!state.voice) return;
+  text = text.replace(/[*#_`]/g, "");
+  player?.pause();
+  if (isUrdu(text)) {
+    // Urdu voice from our self-hosted open model (Meta MMS-TTS).
+    try {
+      const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+      if (r.ok) { player = new Audio(URL.createObjectURL(await r.blob())); player.play(); return; }
+    } catch {}
+  }
+  if (!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/[*#_`]/g, ""));
-  const lang = isUrdu(text) ? "ur" : "en";
-  const v = speechSynthesis.getVoices().find((x) => x.lang.toLowerCase().startsWith(lang));
-  if (v) u.voice = v;
-  u.lang = lang === "ur" ? "ur-PK" : "en-US";
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
   speechSynthesis.speak(u);
 }
 
@@ -185,12 +193,12 @@ document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(b.inne
 $("#voiceBtn").onclick = () => {
   state.voice = !state.voice;
   $("#voiceBtn").innerHTML = state.voice ? `${icon("volume_up")}<span class="lbl">Voice on</span>` : `${icon("volume_off")}<span class="lbl">Voice off</span>`;
-  if (!state.voice) speechSynthesis.cancel();
+  if (!state.voice) { speechSynthesis.cancel(); player?.pause(); }
 };
 document.querySelectorAll(".segmented button").forEach((b) => (b.onclick = () => {
   state.mode = b.dataset.mode;
   document.querySelectorAll(".segmented button").forEach((x) => x.classList.toggle("on", x === b));
   $("#privacyText").textContent = state.mode === "local"
     ? "Private mode: everything runs on Gemma 4 on our own server. Nothing is sent to Google."
-    : "Chat runs on Gemma 4 via the Gemini API. CNIC photos are read by Gemma 4 on our own server and never sent to Google.";
+    : "Hybrid: chat uses Gemma 4 on the Gemini API, with our own server as backup. CNIC photos are read only on our own server.";
 }));

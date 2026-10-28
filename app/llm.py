@@ -7,7 +7,6 @@ import base64
 import json
 import os
 import re
-import time
 from pathlib import Path
 
 import httpx
@@ -61,22 +60,13 @@ def chat(messages, mode="local", tools=None, temperature=0.3):
     body = {"model": b["model"], "messages": messages, "temperature": temperature}
     if tools:
         body["tools"] = tools
-    for attempt in range(2):
-        try:
-            # The free Gemini API sometimes hangs; give up fast and let the caller fall back.
-            r = httpx.post(
-                f"{b['base']}/chat/completions",
-                headers={"Authorization": f"Bearer {b['key']}"},
-                json=body,
-                timeout=45,
-            )
-        except httpx.TimeoutException:
-            if attempt == 1:
-                raise
-            continue
-        if r.status_code not in (429, 500, 503) or attempt == 1:
-            break
-        time.sleep(1)
+    # The free Gemini API sometimes hangs: give up after 15s so the agent falls back to our own server.
+    r = httpx.post(
+        f"{b['base']}/chat/completions",
+        headers={"Authorization": f"Bearer {b['key']}"},
+        json=body,
+        timeout=15,
+    )
     r.raise_for_status()
     msg = r.json()["choices"][0]["message"]
     if msg.get("content"):

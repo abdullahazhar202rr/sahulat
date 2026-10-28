@@ -23,7 +23,7 @@ Sahulat is an Urdu-speaking AI agent, built on **Google Gemma 4**, that takes an
 | 📷 **Scan CNIC** | Gemma 4 reads the card photo and pulls out name, father's name, CNIC, date of birth and address |
 | 📝 **Filled form** | A pre-filled domicile application opens, ready to correct, print or save as PDF |
 | 📍 **Where to go** | e-Khidmat Markaz and Assistant Commissioner office for the user's district, plus an *Open in Google Maps* button |
-| 🔊 **Read aloud** | Replies are spoken back for users who cannot read |
+| 🔊 **Read aloud** | Urdu replies are spoken with **Meta's open MMS-TTS Urdu model**, self-hosted (`tts/server.py`) |
 
 ## How AI is used (Gemma 4)
 
@@ -39,7 +39,8 @@ Reading someone's CNIC is sensitive, so Sahulat uses the fact that **Gemma 4 is 
 - **CNIC photos are read only by Gemma 4 on our own server** (Ollama, self-hosted). They are **never sent to Google** or any third party.
 - Photos are processed in memory and **never written to disk**.
 - The model only ever sees a **masked CNIC** (`36502-*******-3`) during the conversation. The full number stays in the user's browser and goes only into the printable form.
-- **Private mode** runs the whole conversation on self-hosted Gemma 4 too. **Fast mode** uses Gemma 4 on the Gemini API for chat only, never for documents.
+- **Hybrid mode** (default): chat uses Gemma 4 on the Gemini API. If the API is slow (over 15s) or down, Sahulat answers from self-hosted Gemma 4 instead. Documents never go to the API.
+- **Private mode** runs the whole conversation on self-hosted Gemma 4.
 - The office search sends **only the district name**, never personal data.
 
 ## Architecture
@@ -53,7 +54,7 @@ FastAPI server (app/main.py)
    └── CNIC reading ─► Gemma 4 E4B on self-hosted Ollama only (never cloud)
 ```
 
-Open-source stack: **Gemma 4** (Apache 2.0), **Ollama**, **FastAPI**, Web Speech API. The code is MIT.
+Open-source stack: **Gemma 4** (Apache 2.0), **Ollama**, **Meta MMS-TTS Urdu** (CC-BY-NC 4.0, used for this non-commercial demo), **FastAPI**, Web Speech API. The code is MIT.
 
 ## Setup
 
@@ -67,11 +68,15 @@ pip install -r requirements.txt
 # Self-hosted Gemma 4 (on this machine or your own server)
 ollama pull gemma4:e4b
 
-# Optional: Fast mode chat through the Gemini API
+# Optional: Hybrid mode chat through the Gemini API
 echo "GEMINI_API_KEY=your_key" > .env
 
 python -m uvicorn app.main:app --port 8000
 # open http://localhost:8000
+
+# Optional: self-hosted Urdu voice
+pip install -r tts/requirements.txt
+cd tts && uvicorn server:app --port 8101
 ```
 
 **Optional settings in `.env`:**
@@ -81,7 +86,8 @@ python -m uvicorn app.main:app --port 8000
 | `OLLAMA_URL` | `http://localhost:11434/v1` | Your self-hosted Gemma server, for example a VPS through an SSH tunnel |
 | `LOCAL_MODEL` | `gemma4:e2b` | Use `gemma4:e4b` for better document reading |
 | `CLOUD_MODEL` | `gemma-4-26b-a4b-it` | Gemma 4 model on the Gemini API |
-| `GEMINI_API_KEY` | — | Only needed for Fast mode |
+| `GEMINI_API_KEY` | — | Only needed for Hybrid mode |
+| `TTS_URL` | `http://localhost:8101/tts` | Self-hosted Urdu voice server (`tts/server.py`) |
 
 A **fake sample CNIC** for testing is in `samples/sample_cnic.png`. Never test with a real card.
 
@@ -100,7 +106,6 @@ samples/                  Fake CNIC for testing
 
 - Version 1 covers **Punjab domicile**. Next: CNIC renewal, BISP eligibility, birth certificate, police character certificate.
 - Rules change. The knowledge pack shows a *checked on* date and asks users to confirm at the office.
-- Offline Urdu text-to-speech (for example, MMS-TTS Urdu) so voice output does not depend on the browser.
 - WhatsApp version: most target users already use WhatsApp voice notes.
 
 ## License
