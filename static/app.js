@@ -69,10 +69,11 @@ function renderCard(c) {
       <a class="btn" href="${esc(o.maps_url)}" target="_blank" rel="noopener">${icon("map")}Open in Google Maps</a>`);
   } else if (c.type === "form") {
     const f = { ...(state.profile || {}), ...c.data };
-    sessionStorage.setItem("sahulat_form", JSON.stringify(f));
+    // The details travel in the URL fragment: it never reaches the server and works in a new tab.
+    const href = "form.html#" + encodeURIComponent(JSON.stringify(f));
     step("form", "Ready to print");
     card("edit_document", "Your application is ready", "Review, correct anything, then print or save as PDF", `${icon("lock")}Filled in your browser`, `
-      <a class="btn" href="form.html" target="_blank">${icon("open_in_new")}Open filled form</a>`);
+      <a class="btn" href="${href}" target="_blank">${icon("open_in_new")}Open filled form</a>`);
   }
 }
 

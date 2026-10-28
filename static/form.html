@@ -40,7 +40,8 @@
   <div class="sign"><div>Date</div><div>Signature / Thumb impression</div></div>
 </div>
 <script>
-  const f = JSON.parse(sessionStorage.getItem("sahulat_form") || "{}");
+  let f = {};
+  try { f = JSON.parse(decodeURIComponent(location.hash.slice(1)) || "{}"); } catch (e) { f = {}; }
   const rows = [
     ["name", "Applicant's name"], ["father_name", "Father's / husband's name"], ["cnic", "CNIC / B-Form number"],
     ["date_of_birth", "Date of birth"], ["gender", "Gender"], ["address", "Permanent address"],
