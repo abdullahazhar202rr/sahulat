@@ -186,7 +186,7 @@ $("#micBtn").onclick = () => {
 
 // ---------- controls ----------
 $("#sendBtn").onclick = () => send($("#text").value);
-$("#text").onkeydown = (e) => e.key === "Enter" && send($("#text").value);
+$("#text").addEventListener("keydown", (e) => { if (e.key === "Enter") send($("#text").value); });
 $("#camBtn").onclick = () => $("#photo").click();
 $("#photo").onchange = (e) => e.target.files[0] && scan(e.target.files[0]);
 document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(b.dataset.say)));
