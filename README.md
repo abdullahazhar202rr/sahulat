@@ -90,6 +90,8 @@ cd tts && uvicorn server:app --port 8101
 | `DEFAULT_MODE` | `cloud` if a key is set, else `local` | `local` keeps the whole conversation on your own server |
 | `TTS_URL` | `http://localhost:8101/tts` | Self-hosted Urdu voice server (`tts/server.py`) |
 
+A plain-language guide is in [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md).
+
 A **fake sample CNIC** for testing is in `samples/sample_cnic.png`. Never test with a real card.
 
 ## Project structure
