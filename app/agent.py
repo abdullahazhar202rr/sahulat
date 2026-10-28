@@ -18,6 +18,7 @@ Many users cannot read well, so:
 - Call show_checklist when the user knows which service they need.
 - Call find_office when they ask where to go, once you know their district.
 - Call open_form when you have their district and CNIC details.
+- When you call a tool, ALSO write your short reply to the user in the same message.
 
 KNOWLEDGE PACK:
 {json.dumps(KNOWLEDGE, ensure_ascii=False)}
@@ -73,8 +74,19 @@ def respond(history, mode="local", profile=None):
         safe = {k: v for k, v in profile.items() if k != "cnic"}
         safe["cnic_masked"] = profile.get("cnic_masked")
         sys += f"\nDETAILS ALREADY READ FROM THE USER'S CNIC: {json.dumps(safe, ensure_ascii=False)}"
+        sys += ("\nYou ALREADY KNOW their details and district. Do NOT ask for them again. "
+                "Tell them their domicile form is filled and ready to print, then offer to show where to apply.")
     messages = [{"role": "system", "content": sys}] + history
     cards = []
+    # Make the key cards reliable even when a small model skips the tool call.
+    last = (history[-1].get("content") or "").lower() if history else ""
+    if any(w in last for w in ("domicile", "ڈومیسائل", "documents", "kaghaz", "کاغذ", "fee", "فیس")):
+        cards.append(run_tool("show_checklist", {"service": "domicile_punjab"})[1])
+    district = next((d for d in ("sahiwal", "lahore", "okara", "pakpattan", "multan", "faisalabad") if d in last), None)
+    if profile and any(w in last for w in ("form", "فارم", "bhar", "بھر")):
+        cards.append(run_tool("open_form", {"service": "domicile_punjab", "district": profile.get("district", "")})[1])
+    if district and any(w in last for w in ("office", "daftar", "kahan", "کہاں", "دفتر", "where")):
+        cards.append(run_tool("find_office", {"district": district.title()})[1])
     for _ in range(4):
         try:
             msg = llm.chat(messages, mode=mode, tools=TOOLS)
@@ -96,4 +108,9 @@ def respond(history, mode="local", profile=None):
                 cards.append(card)
             messages.append({"role": "tool", "tool_call_id": c.get("id", fn["name"]),
                              "content": json.dumps(result, ensure_ascii=False)})
-    return {"reply": "", "cards": cards}
+        if (msg.get("content") or "").strip():
+            # Gemma already wrote its reply with the tool call: skip a second slow round trip.
+            return {"reply": msg["content"].strip(), "cards": cards}
+    # Too many tool rounds: ask for a plain answer.
+    msg = llm.chat(messages, mode=mode)
+    return {"reply": (msg.get("content") or "").strip(), "cards": cards}

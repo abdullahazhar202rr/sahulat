@@ -1,9 +1,13 @@
-// Sahulat front end: chat, voice, document scan and cards.
+// Sahulat front end: chat, voice, document scan, cards and progress panel.
 const $ = (s) => document.querySelector(s);
 const chat = $("#chat");
-const state = { history: [], mode: "cloud", voice: true, profile: null };
+const state = { history: [], mode: "local", voice: true, profile: null, shown: new Set() };
 
 const isUrdu = (t) => /[؀-ۿ]/.test(t);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const icon = (n) => `<span class="ms">${n}</span>`;
+
+function scrollDown() { chat.scrollTop = chat.scrollHeight; }
 
 function bubble(role, text) {
   $(".welcome")?.remove();
@@ -12,54 +16,73 @@ function bubble(role, text) {
   el.dir = "auto";
   el.textContent = text;
   chat.appendChild(el);
-  chat.scrollTop = chat.scrollHeight;
+  scrollDown();
   return el;
 }
 
-function card(html) {
+function typing(label) {
+  $(".welcome")?.remove();
+  const el = document.createElement("div");
+  el.className = "msg bot";
+  el.innerHTML = `<span class="typing"><i></i><i></i><i></i>${esc(label)}</span>`;
+  chat.appendChild(el);
+  scrollDown();
+  return el;
+}
+
+function card(ico, title, sub, badge, body) {
   const el = document.createElement("div");
   el.className = "card";
-  el.innerHTML = html;
+  el.innerHTML = `<div class="card-h"><span class="ico">${icon(ico)}</span><div><b>${title}</b>${sub ? `<small>${sub}</small>` : ""}</div>${badge ? `<span class="badge">${badge}</span>` : ""}</div>${body}`;
   chat.appendChild(el);
-  chat.scrollTop = chat.scrollHeight;
+  scrollDown();
   return el;
 }
 
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// ---------- progress panel ----------
+function step(name, text, done = true) {
+  const li = document.querySelector(`[data-step="${name}"]`);
+  if (!li) return;
+  li.classList.toggle("done", done);
+  li.classList.toggle("active", !done);
+  $(`#s-${name}`).textContent = text;
+}
 
 // ---------- cards ----------
 function renderCard(c) {
+  if (c.type !== "form" && state.shown.has(c.type)) return;  // show each card once
+  state.shown.add(c.type);
   if (c.type === "checklist") {
     const d = c.data;
-    card(`
-      <h3>📋 ${esc(d.title_en)} <span class="tag">Official checklist</span></h3>
-      <ul>${d.documents.map((x) => `<li><input type="checkbox"><div>${esc(x.en)}<small dir="rtl" class="ur">${esc(x.ur)}</small></div></li>`).join("")}</ul>
-      <div class="fee">💰 <b>Fee: Rs ${d.fee.total_pkr}</b> — ${esc(d.fee.breakdown)}. ${esc(d.fee.payment)}.</div>
-      <div class="src">Source: ${d.sources.map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>`).join(" · ")}<br>Checked on ${esc(d.checked_on)}. ${esc(d.disclaimer)}</div>`);
+    step("service", d.title_en);
+    step("checklist", `${d.documents.length} documents · Rs ${d.fee.total_pkr}`);
+    card("checklist", d.title_en, "Documents to bring", `${icon("verified")}Official sources`, `
+      <ul>${d.documents.map((x) => `<li><input type="checkbox" aria-label="${esc(x.en)}"><div>${esc(x.en)}<small dir="rtl" class="ur">${esc(x.ur)}</small></div></li>`).join("")}</ul>
+      <div class="fee">${icon("payments")}<div><b>Fee: Rs ${d.fee.total_pkr}</b> · ${esc(d.fee.breakdown)}. ${esc(d.fee.payment)}.</div></div>
+      <div class="src">Sources: ${d.sources.map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>`).join(" · ")}<br>Checked on ${esc(d.checked_on)}. ${esc(d.disclaimer)}</div>`);
   } else if (c.type === "office") {
     const o = c.data;
-    card(`
-      <h3>📍 Where to apply <span class="tag">Only your district was searched</span></h3>
+    step("office", o.name);
+    card("location_on", "Where to apply", "Only your district was searched", null, `
       <div><b>${esc(o.name)}</b><br><small>${esc(o.also)}</small></div>
       <div class="src">${esc(o.tracking)}</div>
-      <a class="btn" href="${esc(o.maps_url)}" target="_blank" rel="noopener">Open in Google Maps</a>`);
+      <a class="btn" href="${esc(o.maps_url)}" target="_blank" rel="noopener">${icon("map")}Open in Google Maps</a>`);
   } else if (c.type === "form") {
     const f = { ...(state.profile || {}), ...c.data };
     sessionStorage.setItem("sahulat_form", JSON.stringify(f));
-    card(`
-      <h3>📝 Your application is ready <span class="tag">Filled on this device</span></h3>
-      <div>Review it, correct anything, then print or save as PDF.</div>
-      <a class="btn" href="form.html" target="_blank">Open filled form</a>`);
+    step("form", "Ready to print");
+    card("edit_document", "Your application is ready", "Review, correct anything, then print or save as PDF", `${icon("lock")}Filled in your browser`, `
+      <a class="btn" href="form.html" target="_blank">${icon("open_in_new")}Open filled form</a>`);
   }
 }
 
 function renderProfile(r) {
   const f = r.fields;
-  const rows = [["Name", f.name], ["Father name", f.father_name], ["CNIC", f.cnic_masked || "—"], ["Date of birth", f.date_of_birth], ["Address", f.address], ["District", f.district]];
-  card(`
-    <h3>🪪 Details read from your document <span class="tag">🔒 Read on ${esc(r.processed_on)} in ${r.seconds}s</span></h3>
+  step("details", f.name ? `${f.name} · ${f.cnic_masked || ""}` : "Read");
+  const rows = [["Name", f.name], ["Father name", f.father_name], ["CNIC", f.cnic_masked], ["Date of birth", f.date_of_birth], ["Address", f.address], ["District", f.district]];
+  card("badge", "Details read from your CNIC", `Read in ${r.seconds}s`, `${icon("shield_lock")}Read on ${esc(r.processed_on)}`, `
     <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v || "—")}</dd>`).join("")}</dl>
-    <div class="src">The photo was not saved anywhere. Your full CNIC number stays only in this browser.</div>`);
+    <div class="src">The photo was not saved. Your full CNIC number stays only in this browser.</div>`);
 }
 
 // ---------- talking to the agent ----------
@@ -69,7 +92,7 @@ async function send(text) {
   bubble("user", text);
   state.history.push({ role: "user", content: text });
   $("#text").value = "";
-  const wait = bubble("bot typing", "Sahulat is thinking…");
+  const wait = typing(state.mode === "local" ? "Gemma 4 is thinking on our own server" : "Gemma 4 is thinking");
   try {
     // The full CNIC number is never sent to the model.
     const profile = state.profile ? { ...state.profile, cnic: undefined } : null;
@@ -79,7 +102,7 @@ async function send(text) {
     });
     const data = await r.json();
     wait.remove();
-    if (!r.ok) throw new Error(data.detail || "error");
+    if (!r.ok) throw new Error(data.detail || "Something went wrong");
     (data.cards || []).forEach(renderCard);
     if (data.reply) {
       bubble("bot", data.reply);
@@ -88,26 +111,44 @@ async function send(text) {
     }
   } catch (e) {
     wait.remove();
-    bubble("bot", "⚠️ " + e.message);
+    bubble("bot", e.message);
   }
 }
 
+// Shrink photos before upload: faster on the model, same accuracy for ID cards.
+function shrink(file, max = 640) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = Object.assign(document.createElement("canvas"), { width: img.width * s, height: img.height * s });
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob((b) => resolve(b || file), "image/jpeg", 0.9);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => resolve(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 async function scan(file) {
-  bubble("user", "📷 Scanned a document");
-  const wait = bubble("bot typing", "Reading your document privately on our own server… (about 1 minute)");
+  bubble("user", "Scanned my CNIC");
+  step("details", "Reading…", false);
+  const wait = typing("Reading your CNIC privately on our own server");
   const fd = new FormData();
-  fd.append("file", file);
+  fd.append("file", await shrink(file), "cnic.jpg");
   try {
     const r = await fetch("/api/read-document", { method: "POST", body: fd });
     const data = await r.json();
     wait.remove();
-    if (!r.ok) throw new Error(data.detail || "error");
+    if (!r.ok) throw new Error(data.detail || "Could not read the document");
     state.profile = { ...(state.profile || {}), ...Object.fromEntries(Object.entries(data.fields).filter(([, v]) => v)) };
     renderProfile(data);
+    renderCard({ type: "form", data: { service: "domicile_punjab", district: state.profile.district || "" } });
     send("I scanned my CNIC. Please continue.");
   } catch (e) {
     wait.remove();
-    bubble("bot", "⚠️ " + e.message);
+    bubble("bot", e.message);
   }
 }
 
@@ -140,18 +181,16 @@ $("#sendBtn").onclick = () => send($("#text").value);
 $("#text").onkeydown = (e) => e.key === "Enter" && send($("#text").value);
 $("#camBtn").onclick = () => $("#photo").click();
 $("#photo").onchange = (e) => e.target.files[0] && scan(e.target.files[0]);
-document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(b.textContent)));
+document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(b.innerText.replace(/^\S+\s/, "").trim() || b.innerText)));
 $("#voiceBtn").onclick = () => {
   state.voice = !state.voice;
-  $("#voiceBtn").textContent = state.voice ? "🔊 Voice on" : "🔇 Voice off";
+  $("#voiceBtn").innerHTML = state.voice ? `${icon("volume_up")}<span class="lbl">Voice on</span>` : `${icon("volume_off")}<span class="lbl">Voice off</span>`;
   if (!state.voice) speechSynthesis.cancel();
 };
-document.querySelectorAll(".mode button").forEach((b) => (b.onclick = () => {
+document.querySelectorAll(".segmented button").forEach((b) => (b.onclick = () => {
   state.mode = b.dataset.mode;
-  document.querySelectorAll(".mode button").forEach((x) => x.classList.toggle("on", x === b));
-  const p = $("#privacy");
-  
-  p.textContent = state.mode === "local"
-    ? "🔒 Private: everything runs on Gemma 4 on our own server. Nothing goes to Google."
-    : "⚡ Chat: Gemma 4 on the Gemini API. 🔒 CNIC photos: Gemma 4 on our own server, never sent to Google.";
+  document.querySelectorAll(".segmented button").forEach((x) => x.classList.toggle("on", x === b));
+  $("#privacyText").textContent = state.mode === "local"
+    ? "Private mode: everything runs on Gemma 4 on our own server. Nothing is sent to Google."
+    : "Chat runs on Gemma 4 via the Gemini API. CNIC photos are read by Gemma 4 on our own server and never sent to Google.";
 }));

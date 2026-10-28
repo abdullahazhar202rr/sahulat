@@ -6,48 +6,64 @@
 <title>Sahulat · سہولت</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL@20..48,400,0..1&display=block" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="brand">
-      <div class="logo">س</div>
-      <div>
-        <h1>Sahulat <span class="ur">سہولت</span></h1>
-        <p>Government paperwork, in your language</p>
-      </div>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">س</div>
+    <div>
+      <div class="name">Sahulat <span class="ur">سہولت</span></div>
+      <div class="sub">Government paperwork, in your language</div>
     </div>
-    <div class="controls">
-      <button id="voiceBtn" class="pill" title="Read replies aloud">🔊 Voice on</button>
-      <div class="mode" role="group" aria-label="Where Gemma runs">
-        <button data-mode="cloud" class="on">⚡ Fast</button>
-        <button data-mode="local">🔒 Private</button>
-      </div>
+  </div>
+  <div class="actions">
+    <button id="voiceBtn" class="tonal" title="Read replies aloud"><span class="ms">volume_up</span><span class="lbl">Voice on</span></button>
+    <div class="segmented" role="group" aria-label="Where Gemma runs">
+      <button data-mode="local" class="on"><span class="ms">shield_lock</span>Private</button>
+      <button data-mode="cloud"><span class="ms">bolt</span>Gemini API</button>
     </div>
-  </header>
+  </div>
+</header>
 
-  <div class="privacy" id="privacy">⚡ Chat: Gemma 4 on the Gemini API. 🔒 CNIC photos: Gemma 4 on our own server, never sent to Google.</div>
+<div class="layout">
+  <section class="chatpane">
+    <div class="privacy" id="privacy"><span class="ms">verified_user</span><span id="privacyText">Private mode: everything runs on Gemma 4 on our own server. Nothing is sent to Google.</span></div>
 
-  <main id="chat">
-    <div class="welcome">
-      <h2 class="ur">السلام علیکم! میں سہولت ہوں۔</h2>
-      <p>I help you with government paperwork step by step. Speak or type in Urdu or English.</p>
-      <div class="chips">
-        <button class="chip">Meri beti ka domicile banwana hai</button>
-        <button class="chip">ڈومیسائل کے لیے کون سے کاغذات چاہئیں؟</button>
-        <button class="chip">Domicile ki fees kitni hai?</button>
+    <main id="chat">
+      <div class="welcome">
+        <div class="hello ur" dir="rtl">السلام علیکم! میں سہولت ہوں</div>
+        <p>I guide you through government paperwork step by step. Speak or type in Urdu or English.</p>
+        <div class="chips">
+          <button class="chip"><span class="ms">badge</span>Meri beti ka domicile banwana hai</button>
+          <button class="chip ur" dir="rtl"><span class="ms">checklist</span>ڈومیسائل کے لیے کون سے کاغذات چاہئیں؟</button>
+          <button class="chip"><span class="ms">payments</span>Domicile ki fees kitni hai?</button>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <footer>
-    <input id="photo" type="file" accept="image/*" capture="environment" hidden>
-    <button id="camBtn" class="icon" title="Scan CNIC or bill">📷</button>
-    <button id="micBtn" class="icon" title="Speak">🎤</button>
-    <input id="text" placeholder="Type or press 🎤 and speak…" autocomplete="off">
-    <button id="sendBtn" class="send">Send</button>
-  </footer>
+    <footer class="composer">
+      <input id="photo" type="file" accept="image/*" capture="environment" hidden>
+      <button id="camBtn" class="iconbtn" title="Scan CNIC"><span class="ms">photo_camera</span></button>
+      <button id="micBtn" class="iconbtn" title="Speak in Urdu"><span class="ms">mic</span></button>
+      <input id="text" placeholder="Type, or tap the mic and speak" autocomplete="off">
+      <button id="sendBtn" class="fab" title="Send"><span class="ms">send</span></button>
+    </footer>
+  </section>
+
+  <aside class="panel">
+    <h2>Your application</h2>
+    <p class="muted">Sahulat fills this in as you talk.</p>
+    <ol class="steps" id="steps">
+      <li data-step="service"><span class="dot"><span class="ms">description</span></span><div><b>Service</b><small id="s-service">Not chosen yet</small></div></li>
+      <li data-step="checklist"><span class="dot"><span class="ms">checklist</span></span><div><b>Documents and fee</b><small id="s-checklist">Waiting</small></div></li>
+      <li data-step="details"><span class="dot"><span class="ms">badge</span></span><div><b>Your details</b><small id="s-details">Scan your CNIC</small></div></li>
+      <li data-step="form"><span class="dot"><span class="ms">edit_document</span></span><div><b>Filled form</b><small id="s-form">Waiting</small></div></li>
+      <li data-step="office"><span class="dot"><span class="ms">location_on</span></span><div><b>Where to go</b><small id="s-office">Waiting</small></div></li>
+    </ol>
+    <div class="gemma"><span class="ms">memory</span><div><b>Powered by Gemma 4</b><small>Open-weight model by Google DeepMind</small></div></div>
+  </aside>
 </div>
 <script src="app.js"></script>
 </body>
