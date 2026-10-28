@@ -189,7 +189,7 @@ $("#sendBtn").onclick = () => send($("#text").value);
 $("#text").onkeydown = (e) => e.key === "Enter" && send($("#text").value);
 $("#camBtn").onclick = () => $("#photo").click();
 $("#photo").onchange = (e) => e.target.files[0] && scan(e.target.files[0]);
-document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => (b.dataset.action === "scan" ? $("#photo").click() : send(b.dataset.say))));
+document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(b.dataset.say)));
 $("#voiceBtn").onclick = () => {
   state.voice = !state.voice;
   $("#voiceBtn").innerHTML = state.voice ? `${icon("volume_up")}<span class="lbl">Voice on</span>` : `${icon("volume_off")}<span class="lbl">Voice off</span>`;
