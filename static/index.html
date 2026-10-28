@@ -20,25 +20,21 @@
   </div>
   <div class="actions">
     <button id="voiceBtn" class="tonal" title="Read replies aloud"><span class="ms">volume_up</span><span class="lbl">Voice on</span></button>
-    <div class="segmented" role="group" aria-label="Where Gemma runs">
-      <button data-mode="cloud" class="on"><span class="ms">bolt</span>Hybrid</button>
-      <button data-mode="local"><span class="ms">shield_lock</span>Private</button>
-    </div>
   </div>
 </header>
 
 <div class="layout">
   <section class="chatpane">
-    <div class="privacy" id="privacy"><span class="ms">verified_user</span><span id="privacyText">Hybrid: chat uses Gemma 4 on the Gemini API, with our own server as backup. CNIC photos are read only on our own server.</span></div>
+    <div class="privacy" id="privacy"><span class="ms">verified_user</span><span id="privacyText">Your CNIC photo is read by Gemma 4 on our own server. It is never sent to Google and never saved.</span></div>
 
     <main id="chat">
       <div class="welcome">
         <div class="hello ur" dir="rtl">السلام علیکم! میں سہولت ہوں</div>
         <p>I guide you through government paperwork step by step. Speak or type in Urdu or English.</p>
         <div class="chips">
-          <button class="chip"><span class="ms">badge</span>Meri beti ka domicile banwana hai</button>
-          <button class="chip ur" dir="rtl"><span class="ms">checklist</span>ڈومیسائل کے لیے کون سے کاغذات چاہئیں؟</button>
-          <button class="chip"><span class="ms">payments</span>Domicile ki fees kitni hai?</button>
+          <button class="chip" data-say="Meri beti ka domicile banwana hai"><span class="ms">badge</span>Meri beti ka domicile banwana hai</button>
+          <button class="chip" data-action="scan"><span class="ms">photo_camera</span>Scan my CNIC</button>
+          <button class="chip" data-say="Sahiwal mein domicile ka daftar kahan hai?"><span class="ms">location_on</span>Daftar kahan hai?</button>
         </div>
       </div>
     </main>

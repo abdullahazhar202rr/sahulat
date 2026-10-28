@@ -53,7 +53,7 @@ def run_tool(name, args):
         return {"documents": [d["en"] for d in svc["documents"]], "fee": svc["fee"]["breakdown"]}, card
     if name == "find_office":
         # Only the district name is used here - never personal data.
-        district = args.get("district", "").strip() or "Punjab"
+        district = str(args.get("district", "")).strip()[:40] or "Punjab"
         office = {
             "name": f"e-Khidmat Markaz, {district}",
             "also": f"Assistant Commissioner Office (Domicile Branch), {district}",
@@ -87,13 +87,20 @@ def respond(history, mode="local", profile=None):
         cards.append(run_tool("open_form", {"service": "domicile_punjab", "district": profile.get("district", "")})[1])
     if district and any(w in last for w in ("office", "daftar", "kahan", "کہاں", "دفتر", "where")):
         cards.append(run_tool("find_office", {"district": district.title()})[1])
+    if cards:
+        shown = ", ".join(f"{c['type']} ({c['data'].get('name', '')})" if c["type"] == "office" else c["type"] for c in cards)
+        messages[0] = {"role": "system", "content": sys + f"\nTHE APP JUST SHOWED THE USER: {shown}. "
+                       "Refer to it briefly and do not ask for information it already contains."}
+    base = list(messages)
     for _ in range(4):
         try:
             msg = llm.chat(messages, mode=mode, tools=TOOLS)
         except Exception:
             if mode == "local":
                 raise
-            mode = "local"  # Gemini API busy: fall back to our own Gemma server
+            # Gemini API busy: start this turn again on our own Gemma server
+            # (tool messages differ between the two APIs, so we don't mix them).
+            mode, messages = "local", list(base)
             msg = llm.chat(messages, mode=mode, tools=TOOLS)
         calls = msg.get("tool_calls") or []
         if not calls:
@@ -102,8 +109,11 @@ def respond(history, mode="local", profile=None):
         for c in calls:
             fn = c["function"]
             args = fn.get("arguments") or "{}"
-            args = json.loads(args) if isinstance(args, str) else args
-            result, card = run_tool(fn["name"], args)
+            try:
+                args = json.loads(args) if isinstance(args, str) else dict(args)
+            except (ValueError, TypeError):
+                args = {}  # malformed tool call from the model: run the tool with defaults
+            result, card = run_tool(fn.get("name", ""), args)
             if card:
                 cards.append(card)
             messages.append({"role": "tool", "tool_call_id": c.get("id", fn["name"]),

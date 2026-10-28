@@ -1,7 +1,7 @@
 // Sahulat front end: chat, voice, document scan, cards and progress panel.
 const $ = (s) => document.querySelector(s);
 const chat = $("#chat");
-const state = { history: [], mode: "cloud", voice: true, profile: null, shown: new Set() };
+const state = { history: [], voice: true, profile: null, shown: new Set() };
 
 const isUrdu = (t) => /[؀-ۿ]/.test(t);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -92,13 +92,13 @@ async function send(text) {
   bubble("user", text);
   state.history.push({ role: "user", content: text });
   $("#text").value = "";
-  const wait = typing(state.mode === "local" ? "Gemma 4 is thinking on our own server" : "Gemma 4 is thinking");
+  const wait = typing("Gemma 4 is thinking");
   try {
     // The full CNIC number is never sent to the model.
     const profile = state.profile ? { ...state.profile, cnic: undefined } : null;
     const r = await fetch("/api/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ history: state.history, mode: state.mode, profile }),
+      body: JSON.stringify({ history: state.history, profile }),
     });
     const data = await r.json();
     wait.remove();
@@ -189,16 +189,9 @@ $("#sendBtn").onclick = () => send($("#text").value);
 $("#text").onkeydown = (e) => e.key === "Enter" && send($("#text").value);
 $("#camBtn").onclick = () => $("#photo").click();
 $("#photo").onchange = (e) => e.target.files[0] && scan(e.target.files[0]);
-document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => send(b.innerText.replace(/^\S+\s/, "").trim() || b.innerText)));
+document.querySelectorAll(".chip").forEach((b) => (b.onclick = () => (b.dataset.action === "scan" ? $("#photo").click() : send(b.dataset.say))));
 $("#voiceBtn").onclick = () => {
   state.voice = !state.voice;
   $("#voiceBtn").innerHTML = state.voice ? `${icon("volume_up")}<span class="lbl">Voice on</span>` : `${icon("volume_off")}<span class="lbl">Voice off</span>`;
   if (!state.voice) { speechSynthesis.cancel(); player?.pause(); }
 };
-document.querySelectorAll(".segmented button").forEach((b) => (b.onclick = () => {
-  state.mode = b.dataset.mode;
-  document.querySelectorAll(".segmented button").forEach((x) => x.classList.toggle("on", x === b));
-  $("#privacyText").textContent = state.mode === "local"
-    ? "Private mode: everything runs on Gemma 4 on our own server. Nothing is sent to Google."
-    : "Hybrid: chat uses Gemma 4 on the Gemini API, with our own server as backup. CNIC photos are read only on our own server.";
-}));

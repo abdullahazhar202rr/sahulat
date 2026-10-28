@@ -39,8 +39,8 @@ Reading someone's CNIC is sensitive, so Sahulat uses the fact that **Gemma 4 is 
 - **CNIC photos are read only by Gemma 4 on our own server** (Ollama, self-hosted). They are **never sent to Google** or any third party.
 - Photos are processed in memory and **never written to disk**.
 - The model only ever sees a **masked CNIC** (`36502-*******-3`) during the conversation. The full number stays in the user's browser and goes only into the printable form.
-- **Hybrid mode** (default): chat uses Gemma 4 on the Gemini API. If the API is slow (over 15s) or down, Sahulat answers from self-hosted Gemma 4 instead. Documents never go to the API.
-- **Private mode** runs the whole conversation on self-hosted Gemma 4.
+- **Automatic routing:** chat uses Gemma 4 on the Gemini API. If the API is slow (over 15s) or down, Sahulat answers from self-hosted Gemma 4 instead. Documents never go to the API. Set `DEFAULT_MODE=local` to run everything self-hosted.
+- **Hardened API:** only user/assistant turns are accepted (no injected system prompts), inputs are length-limited, uploads must be images, errors never leak internals, and personal-data responses are sent with `Cache-Control: no-store`.
 - The office search sends **only the district name**, never personal data.
 
 ## Architecture
@@ -68,7 +68,7 @@ pip install -r requirements.txt
 # Self-hosted Gemma 4 (on this machine or your own server)
 ollama pull gemma4:e4b
 
-# Optional: Hybrid mode chat through the Gemini API
+# Optional: chat through Gemma 4 on the Gemini API (with automatic fallback)
 echo "GEMINI_API_KEY=your_key" > .env
 
 python -m uvicorn app.main:app --port 8000
@@ -86,7 +86,8 @@ cd tts && uvicorn server:app --port 8101
 | `OLLAMA_URL` | `http://localhost:11434/v1` | Your self-hosted Gemma server, for example a VPS through an SSH tunnel |
 | `LOCAL_MODEL` | `gemma4:e2b` | Use `gemma4:e4b` for better document reading |
 | `CLOUD_MODEL` | `gemma-4-26b-a4b-it` | Gemma 4 model on the Gemini API |
-| `GEMINI_API_KEY` | — | Only needed for Hybrid mode |
+| `GEMINI_API_KEY` | — | Enables Gemini API chat (otherwise everything runs self-hosted) |
+| `DEFAULT_MODE` | `cloud` if a key is set, else `local` | `local` keeps the whole conversation on your own server |
 | `TTS_URL` | `http://localhost:8101/tts` | Self-hosted Urdu voice server (`tts/server.py`) |
 
 A **fake sample CNIC** for testing is in `samples/sample_cnic.png`. Never test with a real card.
