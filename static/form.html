@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Domicile Application · Sahulat</title>
+<style>
+  body { font: 14px/1.5 Arial, sans-serif; background: #eef2ef; margin: 0; padding: 24px 16px; color: #111; }
+  .sheet { max-width: 760px; margin: 0 auto; background: #fff; padding: 36px 40px; border: 1px solid #ccc; }
+  h1 { text-align: center; font-size: 18px; margin: 0; text-transform: uppercase; }
+  h2 { text-align: center; font-size: 14px; font-weight: normal; margin: 4px 0 24px; }
+  .row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dotted #bbb; }
+  label { font-weight: bold; }
+  input { border: 0; border-bottom: 1px solid transparent; font: 14px Arial; width: 100%; padding: 4px; background: #fffbe6; }
+  input:focus { outline: none; border-bottom-color: #0f7a4a; }
+  .decl { margin-top: 24px; font-size: 13px; }
+  .sign { display: flex; justify-content: space-between; margin-top: 48px; }
+  .sign div { border-top: 1px solid #000; padding-top: 4px; width: 200px; text-align: center; }
+  .bar { max-width: 760px; margin: 0 auto 12px; display: flex; justify-content: space-between; align-items: center; }
+  .bar button { background: #0f7a4a; color: #fff; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: bold; cursor: pointer; }
+  .note { font-size: 12px; color: #555; }
+  @media print { body { background: #fff; padding: 0; } .bar { display: none; } .sheet { border: 0; } input { background: none; } }
+  @media (max-width: 560px) { .sheet { padding: 20px; } .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="note">🔒 Filled in your browser. Yellow fields are editable.</span>
+  <button onclick="print()">Print / Save PDF</button>
+</div>
+<div class="sheet">
+  <h1>Application for Domicile Certificate</h1>
+  <h2>Government of the Punjab — to be submitted at e-Khidmat Markaz</h2>
+  <div id="fields"></div>
+  <p class="decl">I solemnly declare that I am a citizen of Pakistan, that I have been residing in the above district,
+  and that the information given above is true to the best of my knowledge. I have not obtained a domicile certificate from any other district.</p>
+  <div class="sign"><div>Date</div><div>Signature / Thumb impression</div></div>
+</div>
+<script>
+  const f = JSON.parse(sessionStorage.getItem("sahulat_form") || "{}");
+  const rows = [
+    ["name", "Applicant's name"], ["father_name", "Father's / husband's name"], ["cnic", "CNIC / B-Form number"],
+    ["date_of_birth", "Date of birth"], ["gender", "Gender"], ["address", "Permanent address"],
+    ["tehsil", "Tehsil"], ["district", "District"], ["years_of_residence", "Residing in district since"],
+    ["phone", "Mobile number"], ["purpose", "Purpose of domicile"],
+  ];
+  document.getElementById("fields").innerHTML = rows.map(([k, l]) =>
+    `<div class="row"><label for="${k}">${l}</label><input id="${k}"></div>`).join("");
+  rows.forEach(([k]) => { document.getElementById(k).value = f[k] || ""; });
+</script>
+</body>
+</html>

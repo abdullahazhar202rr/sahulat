@@ -1,0 +1,37 @@
+{
+  "domicile_punjab": {
+    "title_en": "Domicile Certificate (Punjab)",
+    "title_ur": "ڈومیسائل سرٹیفکیٹ (پنجاب)",
+    "who": "Pakistani citizens living in a Punjab district. Minors apply through father or guardian.",
+    "where": "Nearest e-Khidmat Markaz in your district. The file goes to the Assistant Commissioner office, which prints and signs the certificate and returns it to the e-Khidmat Markaz.",
+    "fee": {
+      "total_pkr": 550,
+      "breakdown": "Rs 200 domicile fee + Rs 300 e-stamp (affidavit) + Rs 50 PITB service charge",
+      "payment": "Paid digitally through the ePay Punjab app",
+      "note": "New fee approved by the Punjab cabinet in August 2026. Earlier it was Rs 200 by challan."
+    },
+    "documents": [
+      {"id": "applicant_id", "en": "Applicant's CNIC (or B-Form if under 18) - original and copy", "ur": "درخواست گزار کا شناختی کارڈ (18 سال سے کم ہو تو ب فارم) - اصل اور کاپی"},
+      {"id": "father_cnic", "en": "Father's / guardian's CNIC copy", "ur": "والد یا سرپرست کے شناختی کارڈ کی کاپی"},
+      {"id": "residence_proof", "en": "Proof of residence in the district (utility bill or property papers)", "ur": "ضلع میں رہائش کا ثبوت (بجلی/گیس کا بل یا جائیداد کے کاغذات)"},
+      {"id": "education", "en": "Matric certificate or school leaving certificate (for date of birth and schooling)", "ur": "میٹرک سرٹیفکیٹ یا اسکول لیونگ سرٹیفکیٹ"},
+      {"id": "affidavit", "en": "Affidavit on e-stamp paper (part of the Rs 550 fee)", "ur": "ای اسٹامپ پر بیان حلفی (550 روپے فیس میں شامل)"},
+      {"id": "photos", "en": "Recent passport-size photographs", "ur": "تازہ پاسپورٹ سائز تصاویر"}
+    ],
+    "steps": [
+      "Collect the documents in the checklist.",
+      "Pay Rs 550 through the ePay Punjab app.",
+      "Visit the nearest e-Khidmat Markaz with originals and copies; biometric verification is done there.",
+      "Keep the tracking ID; track on the e-Khidmat website or app.",
+      "Collect the certificate from the e-Khidmat Markaz (courier delivery to home is being introduced)."
+    ],
+    "form_fields": ["name", "father_name", "cnic", "date_of_birth", "gender", "address", "district", "tehsil", "phone", "purpose", "years_of_residence"],
+    "sources": [
+      {"name": "District Hafizabad - Domicile Branch (Punjab Govt)", "url": "https://hafizabad.punjab.gov.pk/node/121"},
+      {"name": "Punjab cabinet domicile reforms, Aug 2026", "url": "https://thepakistanconnect.com/?p=106693"},
+      {"name": "Higher Education Dept Punjab - Student Affairs", "url": "https://hed.punjab.gov.pk/node/544"}
+    ],
+    "checked_on": "2026-10-28",
+    "disclaimer": "Requirements can change. Confirm at your e-Khidmat Markaz before visiting."
+  }
+}

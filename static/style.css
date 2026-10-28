@@ -1,0 +1,53 @@
+:root {
+  --bg: #f3f6f4; --card: #ffffff; --ink: #14231b; --muted: #5d6f64;
+  --brand: #0f7a4a; --brand-2: #0b5e39; --soft: #e5f3eb; --line: #dfe7e2;
+  --user: #0f7a4a; --warn: #9a5b00;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Inter, system-ui, sans-serif; }
+.ur, [dir="rtl"] { font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif; line-height: 2.1; }
+.app { max-width: 760px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--card); box-shadow: 0 0 40px rgba(0,0,0,.06); }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.logo { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--brand), #1bb36f); color: #fff; display: grid; place-items: center; font: 600 24px "Noto Nastaliq Urdu", serif; }
+h1 { font-size: 19px; margin: 0; } h1 .ur { color: var(--brand); font-size: 17px; margin-left: 4px; }
+.brand p { margin: 0; color: var(--muted); font-size: 13px; }
+.controls { display: flex; gap: 8px; align-items: center; }
+.pill, .mode button { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 12px; font: 500 13px Inter, sans-serif; cursor: pointer; }
+.mode { display: flex; background: var(--soft); border-radius: 999px; padding: 3px; }
+.mode button { border: 0; background: transparent; }
+.mode button.on { background: var(--brand); color: #fff; }
+.privacy { background: var(--soft); color: var(--brand-2); font-size: 13px; padding: 8px 18px; }
+.privacy.cloud { background: #fff4e0; color: var(--warn); }
+main { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.welcome { text-align: center; padding: 28px 8px; }
+.welcome h2 { margin: 0 0 6px; color: var(--brand-2); font-size: 22px; }
+.welcome p { color: var(--muted); margin: 0 0 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 14px; cursor: pointer; font: 14px Inter, "Noto Nastaliq Urdu", sans-serif; }
+.chip:hover { border-color: var(--brand); color: var(--brand); }
+.msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; white-space: pre-wrap; }
+.msg.user { align-self: flex-end; background: var(--user); color: #fff; border-bottom-right-radius: 4px; }
+.msg.bot { align-self: flex-start; background: #f1f4f2; border-bottom-left-radius: 4px; }
+.msg.typing { color: var(--muted); font-style: italic; }
+.card { align-self: stretch; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: #fff; }
+.card h3 { margin: 0 0 8px; font-size: 15px; display: flex; justify-content: space-between; gap: 8px; }
+.card .tag { font-size: 12px; font-weight: 500; color: var(--brand); background: var(--soft); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.card ul { margin: 0; padding: 0; list-style: none; }
+.card li { padding: 6px 0; border-top: 1px dashed var(--line); display: flex; gap: 10px; align-items: flex-start; }
+.card li:first-child { border-top: 0; }
+.card li small { display: block; color: var(--muted); }
+.card .fee { margin-top: 10px; background: var(--soft); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+.card .src { margin-top: 8px; font-size: 12px; color: var(--muted); }
+.card .src a { color: var(--brand); }
+.card dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 10px; margin: 0; font-size: 14px; }
+.card dt { color: var(--muted); }
+.btn { display: inline-block; margin-top: 10px; background: var(--brand); color: #fff; border: 0; border-radius: 10px; padding: 9px 16px; font: 600 14px Inter, sans-serif; cursor: pointer; text-decoration: none; }
+.btn.ghost { background: #fff; color: var(--brand); border: 1px solid var(--brand); }
+footer { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); position: sticky; bottom: 0; background: #fff; }
+footer input#text { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; font: 15px Inter, "Noto Nastaliq Urdu", sans-serif; }
+.icon { width: 44px; border: 1px solid var(--line); background: #fff; border-radius: 12px; font-size: 18px; cursor: pointer; }
+.icon.live { background: #ffe3e3; border-color: #e55; animation: pulse 1s infinite; }
+.send { background: var(--brand); color: #fff; border: 0; border-radius: 12px; padding: 0 18px; font: 600 14px Inter, sans-serif; cursor: pointer; }
+@keyframes pulse { 50% { transform: scale(1.08); } }
+@media (max-width: 520px) { header { padding: 12px; } .controls { width: 100%; justify-content: space-between; } .card dl { grid-template-columns: 1fr; } }

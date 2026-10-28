@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sahulat · سہولت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">س</div>
+      <div>
+        <h1>Sahulat <span class="ur">سہولت</span></h1>
+        <p>Government paperwork, in your language</p>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="voiceBtn" class="pill" title="Read replies aloud">🔊 Voice on</button>
+      <div class="mode" role="group" aria-label="Where Gemma runs">
+        <button data-mode="cloud" class="on">⚡ Fast</button>
+        <button data-mode="local">🔒 Private</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="privacy" id="privacy">⚡ Chat: Gemma 4 on the Gemini API. 🔒 CNIC photos: Gemma 4 on our own server, never sent to Google.</div>
+
+  <main id="chat">
+    <div class="welcome">
+      <h2 class="ur">السلام علیکم! میں سہولت ہوں۔</h2>
+      <p>I help you with government paperwork step by step. Speak or type in Urdu or English.</p>
+      <div class="chips">
+        <button class="chip">Meri beti ka domicile banwana hai</button>
+        <button class="chip">ڈومیسائل کے لیے کون سے کاغذات چاہئیں؟</button>
+        <button class="chip">Domicile ki fees kitni hai?</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <input id="photo" type="file" accept="image/*" capture="environment" hidden>
+    <button id="camBtn" class="icon" title="Scan CNIC or bill">📷</button>
+    <button id="micBtn" class="icon" title="Speak">🎤</button>
+    <input id="text" placeholder="Type or press 🎤 and speak…" autocomplete="off">
+    <button id="sendBtn" class="send">Send</button>
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
