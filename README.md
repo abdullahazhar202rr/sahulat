@@ -17,13 +17,13 @@ Sahulat is an Urdu-speaking AI agent, built on **Google Gemma 4**, that takes an
 
 | Step | What happens |
 |---|---|
-| 🎤 **Speak** | *"Meri beti ka domicile banwana hai"* ("I need my daughter's domicile"), using Urdu voice input or text |
-| 🤖 **Guided questions** | Gemma 4 asks one simple question at a time in Urdu (district, who it is for) |
-| 📋 **Official checklist** | Documents, fee breakdown and steps, **from official sources, with links and a "checked on" date** |
-| 📷 **Scan CNIC** | Gemma 4 reads the card photo and pulls out name, father's name, CNIC, date of birth and address |
-| 📝 **Filled form** | A pre-filled domicile application opens, ready to correct, print or save as PDF |
-| 📍 **Where to go** | e-Khidmat Markaz and Assistant Commissioner office for the user's district, plus an *Open in Google Maps* button |
-| 🔊 **Read aloud** | Urdu replies are spoken with **Meta's open MMS-TTS Urdu model**, self-hosted (`tts/server.py`) |
+| **Speak** | *"Meri beti ka domicile banwana hai"* ("I need my daughter's domicile"), using Urdu voice input or text |
+| **Guided questions** | Gemma 4 asks one simple question at a time in Urdu (district, who it is for) |
+| **Official checklist** | Documents, fee breakdown and steps, **from official sources, with links and a "checked on" date** |
+| **Scan CNIC** | Gemma 4 reads the card photo and pulls out name, father's name, CNIC, date of birth and address |
+| **Filled form** | A pre-filled domicile application opens, ready to correct, print or save as PDF |
+| **Where to go** | e-Khidmat Markaz and Assistant Commissioner office for the user's district, plus an *Open in Google Maps* button |
+| **Read aloud** | Urdu replies are spoken with **Meta's open MMS-TTS Urdu model**, self-hosted (`tts/server.py`) |
 
 ## How AI is used (Gemma 4)
 
@@ -32,7 +32,7 @@ Sahulat is an Urdu-speaking AI agent, built on **Google Gemma 4**, that takes an
 - **Agent with tool calling.** Gemma 4 decides when to call `show_checklist`, `find_office` and `open_form` (`app/agent.py`). The UI shows these as cards.
 - **Grounded answers.** Fees and documents come only from a curated **knowledge pack** (`knowledge/services.json`) built from official Punjab Government sources. The model is told never to invent them, and every answer shows its source.
 
-## Privacy by design 🔒
+## Privacy by design 
 
 Reading someone's CNIC is sensitive, so Sahulat uses the fact that **Gemma 4 is open-weight**:
 
