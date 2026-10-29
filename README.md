@@ -5,6 +5,8 @@ Sahulat is an Urdu-speaking AI agent, built on **Google Gemma 4**, that takes an
 
 > Built in 24 hours for **Hacktoberfest Hack Day — Sahiwal x Zeppelin Labs** (Oct 2026).
 
+**Demo video (2 min):** [docs/sahulat-demo.mp4](docs/sahulat-demo.mp4). Bashir, a father in Sahiwal, gets his daughter's domicile done by speaking Urdu.
+
 ---
 
 ## The problem
